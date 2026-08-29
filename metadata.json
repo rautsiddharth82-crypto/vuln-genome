@@ -1,0 +1,6 @@
+{
+  "name": "VULN-GENOME",
+  "description": "AI Agent Control System for autonomous vulnerability detection, invariant synthesis, formal Z3 verification, and multi-agent cyber defense swarm orchestration.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

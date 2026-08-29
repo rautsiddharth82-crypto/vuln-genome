@@ -1,0 +1,23 @@
+services:
+  - type: web
+    name: vuln-genome-backend
+    env: node
+    rootDir: Backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: CORS_ORIGIN
+        value: "*"
+      - key: MONGODB_URI
+        sync: false
+        # Enter your MongoDB Atlas connection string in Render dashboard
+      - key: GROQ_API_KEY
+        sync: false
+        # Optional: Groq LLM API Key
+      - key: GROK_API_KEY
+        sync: false
+        # Optional: Grok LLM API Key

@@ -1,0 +1,192 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-display: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+@layer base {
+  :root {
+    --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-display: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', 'Fira Code', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  }
+
+  html {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #F5EBDD;
+    color: #3B2418;
+    overflow-x: hidden;
+    letter-spacing: -0.01em;
+  }
+
+  h1, h2, h3, h4, h5, h6, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.025em;
+  }
+
+  code, pre, kbd, samp, .font-mono {
+    font-family: var(--font-mono);
+    letter-spacing: -0.01em;
+    font-feature-settings: "liga" 0;
+  }
+
+  button, input, select, textarea {
+    font-family: inherit;
+  }
+}
+
+/* Glass Frame Utilities */
+.glass-frame {
+  background: rgba(255, 253, 249, 0.82);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(220, 199, 174, 0.7);
+  box-shadow: 0 10px 30px -5px rgba(59, 36, 24, 0.06), 
+              0 2px 8px -1px rgba(59, 36, 24, 0.04),
+              inset 0 1px 1px 0 rgba(255, 255, 255, 0.95),
+              inset 0 -1px 1px 0 rgba(220, 199, 174, 0.3);
+}
+
+.glass-frame-hover {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-frame-hover:hover {
+  background: rgba(255, 254, 252, 0.92);
+  border-color: rgba(184, 138, 82, 0.65);
+  box-shadow: 0 16px 40px -8px rgba(59, 36, 24, 0.12),
+              0 4px 12px -2px rgba(184, 138, 82, 0.15),
+              inset 0 1px 1px 0 rgba(255, 255, 255, 1);
+  transform: translateY(-2px);
+}
+
+.glass-frame-dark {
+  background: rgba(36, 21, 15, 0.86);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(90, 56, 37, 0.7);
+  box-shadow: 0 16px 40px -8px rgba(20, 10, 6, 0.5),
+              0 2px 8px -1px rgba(20, 10, 6, 0.3),
+              inset 0 1px 1px 0 rgba(184, 138, 82, 0.35),
+              inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4);
+}
+
+.glass-frame-dark-hover {
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-frame-dark-hover:hover {
+  background: rgba(45, 27, 19, 0.92);
+  border-color: rgba(184, 138, 82, 0.7);
+  box-shadow: 0 20px 48px -8px rgba(20, 10, 6, 0.6),
+              inset 0 1px 1px 0 rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+}
+
+.glass-input {
+  background: rgba(245, 235, 221, 0.55);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(220, 199, 174, 0.8);
+  box-shadow: inset 0 1px 2px rgba(59, 36, 24, 0.05),
+              inset 0 0 0 1px rgba(255, 255, 255, 0.4);
+  transition: all 0.2s ease;
+}
+
+.glass-input:focus {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: #B88A52;
+  box-shadow: 0 0 0 3px rgba(184, 138, 82, 0.2),
+              inset 0 1px 2px rgba(59, 36, 24, 0.05);
+}
+
+.glass-pill {
+  background: rgba(255, 253, 249, 0.75);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(220, 199, 174, 0.7);
+  box-shadow: 0 2px 6px -1px rgba(59, 36, 24, 0.05),
+              inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.glass-ambient-grid {
+  background-size: 32px 32px;
+  background-image: 
+    linear-gradient(to right, rgba(184, 138, 82, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(184, 138, 82, 0.04) 1px, transparent 1px);
+}
+
+/* Custom scrollbars with bronze-cream palette */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(59, 36, 24, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(90, 56, 37, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(184, 138, 82, 0.6);
+}
+
+/* Radar & Pulse Animations */
+@keyframes radar-sweep {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+@keyframes genome-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.98); }
+  50% { opacity: 1; transform: scale(1.02); }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(1000%); }
+}
+
+.animate-radar {
+  animation: radar-sweep 4s linear infinite;
+}
+
+.animate-genome {
+  animation: genome-pulse 3s ease-in-out infinite;
+}
+
+.animate-scanline {
+  animation: scanline 8s linear infinite;
+}
+
+/* Print specific for Proof Certificates */
+@media print {
+  body {
+    background-color: white !important;
+    color: #111 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .certificate-card {
+    border: 2px solid #5A3825 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+  }
+}
