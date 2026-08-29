@@ -1,0 +1,1 @@
+public class UserSearchService { void query() {} }
