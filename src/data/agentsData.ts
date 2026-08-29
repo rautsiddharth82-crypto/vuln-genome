@@ -292,7 +292,7 @@ export const INITIAL_SWARM_STATE: SwarmControlState = {
   swarmHealth: 99.4,
   autoPatchApproval: true,
   maxConcurrency: 8,
-  aiModel: 'gemini-3.7-flash (Self-Healing Autonomous)',
+  aiModel: 'grok-2-latest (Self-Healing Autonomous)',
   targetRepository: 'enterprise-core-service',
   totalAstNodesProcessed: 842910,
   threatsNeutralized: 48,

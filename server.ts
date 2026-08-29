@@ -1,25 +1,64 @@
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
-import { GoogleGenAI } from "@google/genai";
 import dotenv from "dotenv";
 
 dotenv.config();
 
-// Initialize Gemini client (Lazy server-side helper)
-function getGeminiClient(): GoogleGenAI | null {
-  const apiKey = process.env.GEMINI_API_KEY;
+interface GrokMessage {
+  role: "system" | "user" | "assistant";
+  content: string;
+}
+
+interface GrokResponse {
+  choices: Array<{
+    message: {
+      content: string;
+    };
+  }>;
+}
+
+// Helper to make API calls to xAI Grok
+async function callGrok(
+  systemInstruction: string,
+  userPrompt: string,
+  jsonMode = false
+): Promise<string | null> {
+  const apiKey = process.env.GROK_API_KEY || process.env.XAI_API_KEY;
   if (!apiKey) {
     return null;
   }
-  return new GoogleGenAI({
-    apiKey,
-    httpOptions: {
+
+  try {
+    const response = await fetch("https://api.x.ai/v1/chat/completions", {
+      method: "POST",
       headers: {
-        "User-Agent": "aistudio-build",
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${apiKey}`,
       },
-    },
-  });
+      body: JSON.stringify({
+        model: "grok-2-latest",
+        messages: [
+          { role: "system", content: systemInstruction },
+          { role: "user", content: userPrompt }
+        ],
+        temperature: 0.2,
+        response_format: jsonMode ? { type: "json_object" } : undefined,
+      }),
+    });
+
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error(`Grok API returned status ${response.status}: ${errText}`);
+      return null;
+    }
+
+    const data = (await response.json()) as GrokResponse;
+    return data.choices?.[0]?.message?.content || null;
+  } catch (error) {
+    console.error("Grok API call failed:", error);
+    return null;
+  }
 }
 
 async function startServer() {
@@ -33,7 +72,7 @@ async function startServer() {
     res.json({
       status: "ok",
       serverTime: new Date().toISOString(),
-      geminiConfigured: Boolean(process.env.GEMINI_API_KEY),
+      grokConfigured: Boolean(process.env.GROK_API_KEY || process.env.XAI_API_KEY),
       mode: process.env.NODE_ENV || "development",
     });
   });
@@ -46,12 +85,8 @@ async function startServer() {
       return res.status(400).json({ error: "Missing command prompt" });
     }
 
-    const ai = getGeminiClient();
-
-    // If Gemini is available, run autonomous reasoning with gemini-3.7-flash
-    if (ai) {
-      try {
-        const systemInstruction = `You are VULN-GENOME Autonomous AI Agent Swarm Commander. 
+    const grokResponse = await callGrok(
+      `You are VULN-GENOME Autonomous AI Agent Swarm Commander. 
 You control 6 specialized cyber defense agents:
 1. Sentinel-AST: Invariant AST code scanner, vulnerability extractor, data-flow tracer.
 2. Synthesizer-X: Autonomous zero-regression patch synthesizer, surgical AST transformer.
@@ -94,23 +129,18 @@ Analyze the operator's command and output a STRICT JSON structure:
     "status": "COMPLETED"
   },
   "tacticalAdvice": "Immediate recommendation for the security operator"
-}`;
+}`,
+      `Operator Directive: "${prompt}". Current target: ${targetRepo || "Production Core Repo"}. Mode: ${systemMode || "AUTONOMOUS"}. Active Agents: ${JSON.stringify(agents || [])}`,
+      true
+    );
 
-        const geminiResponse = await ai.models.generateContent({
-          model: "gemini-3.7-flash",
-          contents: `Operator Directive: "${prompt}". Current target: ${targetRepo || "Production Core Repo"}. Mode: ${systemMode || "AUTONOMOUS"}. Active Agents: ${JSON.stringify(agents || [])}`,
-          config: {
-            systemInstruction,
-            responseMimeType: "application/json",
-            temperature: 0.2,
-          },
-        });
-
-        const rawText = geminiResponse.text?.trim() || "{}";
+    if (grokResponse) {
+      try {
+        const rawText = grokResponse.trim() || "{}";
         const parsed = JSON.parse(rawText);
-        return res.json({ success: true, aiSource: "gemini-3.7-flash", ...parsed });
+        return res.json({ success: true, aiSource: "grok-2-latest", ...parsed });
       } catch (err: any) {
-        console.warn("Gemini agent command fallback triggered:", err?.message || err);
+        console.warn("Grok agent command parse fallback triggered:", err?.message || err);
       }
     }
 
@@ -122,22 +152,13 @@ Analyze the operator's command and output a STRICT JSON structure:
   // API Route: Deep Agent Reasoning Query
   app.post("/api/ai/agent-reasoning", async (req, res) => {
     const { agentId, query, vulnerabilityContext } = req.body;
-    const ai = getGeminiClient();
+    const grokReasoning = await callGrok(
+      "You are an autonomous sub-agent inside VULN-GENOME. Provide deep, technical reasoning with exact AST invariants, mathematical proof steps, or exploit vector analysis. Be concise, authoritative, and ultra-precise.",
+      `Agent ID: ${agentId}. Query: "${query}". Context: ${JSON.stringify(vulnerabilityContext || {})}`
+    );
 
-    if (ai) {
-      try {
-        const response = await ai.models.generateContent({
-          model: "gemini-3.7-flash",
-          contents: `Agent ID: ${agentId}. Query: "${query}". Context: ${JSON.stringify(vulnerabilityContext || {})}`,
-          config: {
-            systemInstruction: "You are an autonomous sub-agent inside VULN-GENOME. Provide deep, technical reasoning with exact AST invariants, mathematical proof steps, or exploit vector analysis. Be concise, authoritative, and ultra-precise.",
-            temperature: 0.2,
-          },
-        });
-        return res.json({ success: true, reasoning: response.text });
-      } catch (err) {
-        // Fall through
-      }
+    if (grokReasoning) {
+      return res.json({ success: true, reasoning: grokReasoning });
     }
 
     // Deterministic agent response

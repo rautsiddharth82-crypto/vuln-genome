@@ -84,7 +84,7 @@ export const AgentCommandTerminal: React.FC<AgentCommandTerminalProps> = ({
                 AI Swarm Commander Dispatch
               </h3>
               <span className="px-2 py-0.5 rounded-md bg-emerald-500/10 text-emerald-800 text-[10px] font-mono font-bold border border-emerald-500/20">
-                GEMINI 3.7 FLASH READY
+                GROK 2 READY
               </span>
             </div>
             <p className="text-xs text-[#5A3825]">
