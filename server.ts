@@ -18,26 +18,32 @@ interface GrokResponse {
   }>;
 }
 
-// Helper to make API calls to xAI Grok
+// Helper to make API calls to Groq or Grok depending on key format
 async function callGrok(
   systemInstruction: string,
   userPrompt: string,
   jsonMode = false
 ): Promise<string | null> {
-  const apiKey = process.env.GROK_API_KEY || process.env.XAI_API_KEY;
+  const apiKey = process.env.GROQ_API_KEY || process.env.GROK_API_KEY || process.env.XAI_API_KEY;
   if (!apiKey) {
     return null;
   }
 
+  const isGroq = apiKey.startsWith("gsk_");
+  const endpoint = isGroq 
+    ? "https://api.groq.com/openapi/v1/chat/completions" 
+    : "https://api.x.ai/v1/chat/completions";
+  const model = isGroq ? "llama-3.3-70b-versatile" : "grok-2-latest";
+
   try {
-    const response = await fetch("https://api.x.ai/v1/chat/completions", {
+    const response = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: "grok-2-latest",
+        model,
         messages: [
           { role: "system", content: systemInstruction },
           { role: "user", content: userPrompt }
@@ -49,14 +55,14 @@ async function callGrok(
 
     if (!response.ok) {
       const errText = await response.text();
-      console.error(`Grok API returned status ${response.status}: ${errText}`);
+      console.error(`API returned status ${response.status}: ${errText}`);
       return null;
     }
 
     const data = (await response.json()) as GrokResponse;
     return data.choices?.[0]?.message?.content || null;
   } catch (error) {
-    console.error("Grok API call failed:", error);
+    console.error("API call failed:", error);
     return null;
   }
 }
@@ -72,7 +78,7 @@ async function startServer() {
     res.json({
       status: "ok",
       serverTime: new Date().toISOString(),
-      grokConfigured: Boolean(process.env.GROK_API_KEY || process.env.XAI_API_KEY),
+      grokConfigured: Boolean(process.env.GROQ_API_KEY || process.env.GROK_API_KEY || process.env.XAI_API_KEY),
       mode: process.env.NODE_ENV || "development",
     });
   });
