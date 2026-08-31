@@ -33,25 +33,34 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // Static uploads serving
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
-// Health Check & Root
+// Health Check & Root Handlers
+const apiStatusPayload = {
+  status: 'ok',
+  service: 'VULN-GENOME MERN Backend',
+  version: '1.0.0',
+  message: 'VulnGenome API is running.',
+  endpoints: {
+    health: '/health',
+    apiBase: '/api/v1',
+    uploads: '/uploads'
+  }
+};
+
 app.get('/', (_req, res) => {
-  res.json({
-    status: 'ok',
-    service: 'VULN-GENOME MERN Backend',
-    version: '1.0.0',
-    message: 'VulnGenome Backend API is running.',
-    endpoints: {
-      health: '/health',
-      apiBase: '/api/v1'
-    }
-  });
+  res.json(apiStatusPayload);
+});
+
+app.get('/api', (_req, res) => {
+  res.json(apiStatusPayload);
+});
+
+app.get('/api/v1', (_req, res) => {
+  res.json(apiStatusPayload);
 });
 
 app.get('/health', (_req, res) => {
   res.json({
-    status: 'ok',
-    service: 'VULN-GENOME MERN Backend',
-    version: '1.0.0',
+    ...apiStatusPayload,
     timestamp: new Date().toISOString(),
     env: process.env.NODE_ENV || 'development',
   });
@@ -59,9 +68,7 @@ app.get('/health', (_req, res) => {
 
 app.get('/api/health', (_req, res) => {
   res.json({
-    status: 'ok',
-    service: 'VULN-GENOME MERN Backend',
-    version: '1.0.0',
+    ...apiStatusPayload,
     timestamp: new Date().toISOString(),
     env: process.env.NODE_ENV || 'development',
   });
@@ -84,6 +91,27 @@ app.use('/api', patchRoutes);
 
 // Global Error Handler
 app.use(errorHandler);
+
+// 404 Fallback - Confirms API is running even if endpoint is unknown
+app.use((req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    message: `VulnGenome API is running. Route '${req.method} ${req.path}' was not matched.`,
+    availableEndpoints: [
+      '/',
+      '/health',
+      '/api',
+      '/api/v1',
+      '/api/v1/upload',
+      '/api/v1/scan',
+      '/api/v1/patches',
+      '/api/v1/vulnerabilities',
+      '/api/v1/certificates',
+      '/api/v1/genomes',
+      '/api/v1/ai'
+    ]
+  });
+});
 
 // Connect DB & Start Express Server
 export async function startServer() {
