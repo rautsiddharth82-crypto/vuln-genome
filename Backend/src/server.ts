@@ -33,7 +33,20 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 // Static uploads serving
 app.use('/uploads', express.static(path.join(process.cwd(), 'uploads')));
 
-// Health Check
+// Health Check & Root
+app.get('/', (_req, res) => {
+  res.json({
+    status: 'ok',
+    service: 'VULN-GENOME MERN Backend',
+    version: '1.0.0',
+    message: 'VulnGenome Backend API is running.',
+    endpoints: {
+      health: '/health',
+      apiBase: '/api/v1'
+    }
+  });
+});
+
 app.get('/health', (_req, res) => {
   res.json({
     status: 'ok',
